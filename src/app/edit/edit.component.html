@@ -10,7 +10,7 @@
 
 <ng-template #ost>
   <ng-container *ngIf="objectKeys(frames).length > 0">
-      <p>Frame #{{currentOSTFrame}}</p>
+      <h3 style="text-align: center">Frame #{{currentOSTFrame}}</h3>
       <mat-grid-list cols="12" rowHeight="1:4">
         <mat-grid-tile colspan="6">
           <div class="container">
@@ -34,10 +34,14 @@
               {{frames[number].boxes.length}} Text Boxes
             </mat-panel-description>
           </mat-expansion-panel-header>
-          <mat-card *ngFor="let box of frames[number].boxes; let i = index">
-            <p>Box {{i+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
-            <input matInput placeholder="Enter translation..." name="box-{{number}}-{{i}}" [(ngModel)]="box.text">
-          </mat-card>
+          <mat-grid-list cols="12" rowHeight="1:1">
+              <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let i = index">
+                  <mat-card>
+                      <p>Box {{i+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
+                      <input matInput placeholder="Enter translation..." name="box-{{number}}-{{i}}" [(ngModel)]="box.text">
+                    </mat-card>
+              </mat-grid-tile>
+          </mat-grid-list>
         </mat-expansion-panel>
       </mat-accordion>
   </ng-container>
