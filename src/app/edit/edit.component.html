@@ -10,43 +10,76 @@
 
 <ng-template #ost>
   <ng-container *ngIf="objectKeys(frames).length > 0">
-      <h3 style="text-align: center">Frame #{{currentOSTFrame}}</h3>
-      <mat-grid-list cols="12" rowHeight="1:4">
-        <mat-grid-tile colspan="6">
-          <div class="container">
-            <img src="{{frames[currentOSTFrame].cleanImage}}" alt="Frame {{currentOSTFrame}}" style="width:100%;" #ostCleanImage>
-            <div *ngFor="let box of frames[currentOSTFrame].boxes; let i = index" class="text-overlay" [ngStyle]="getCoords(i)">{{box.text}}</div>
-          </div>
-        </mat-grid-tile>
-        <mat-grid-tile colspan="6">
-          <div class="container">
-            <img src="{{frames[currentOSTFrame].finalImage}}" alt="Snow" style="width:100%;">
-          </div>
-        </mat-grid-tile>
-      </mat-grid-list>
-      <mat-accordion>
-        <mat-expansion-panel (opened)="currentOSTFrame = number" *ngFor="let number of frameNumbers">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Frame {{number}}
-            </mat-panel-title>
-            <mat-panel-description>
-              {{frames[number].boxes.length}} Text Boxes
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <mat-grid-list cols="12" rowHeight="1:1">
-              <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let i = index">
-                  <mat-card>
-                      <p>Box {{i+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
-                      <input matInput placeholder="Enter translation..." name="box-{{number}}-{{i}}" [(ngModel)]="box.text">
-                    </mat-card>
-              </mat-grid-tile>
-          </mat-grid-list>
-        </mat-expansion-panel>
-      </mat-accordion>
+    <h3 style="text-align: center">Frame #{{currentOSTFrame}}</h3>
+    <mat-grid-list cols="12" rowHeight="1:4">
+      <mat-grid-tile colspan="6">
+        <div class="container">
+          <img src="{{frames[currentOSTFrame].cleanImage}}" alt="Frame {{currentOSTFrame}}" style="width:100%;"
+            #ostCleanImage>
+          <div *ngFor="let box of frames[currentOSTFrame].boxes; let i = index" class="text-overlay"
+            [ngStyle]="getCoords(i)">{{box.text}}</div>
+        </div>
+      </mat-grid-tile>
+      <mat-grid-tile colspan="6">
+        <div class="container">
+          <img src="{{frames[currentOSTFrame].finalImage}}" alt="Snow" style="width:100%;">
+        </div>
+      </mat-grid-tile>
+    </mat-grid-list>
+    <mat-accordion>
+      <mat-expansion-panel (opened)="currentOSTFrame = number" *ngFor="let number of frameNumbers">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Frame {{number}}
+          </mat-panel-title>
+          <mat-panel-description>
+            {{frames[number].boxes.length}} Text Boxes
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-grid-list cols="12" rowHeight="1:1">
+          <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let i = index">
+            <mat-card>
+              <p>Box {{i+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
+              <input matInput placeholder="Enter translation..." name="box-{{number}}-{{i}}" [(ngModel)]="box.text">
+            </mat-card>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </mat-expansion-panel>
+    </mat-accordion>
   </ng-container>
 </ng-template>
 
 <ng-template #voiceover>
-  Voiceover
+  <ng-container *ngIf="originalVoiceovers && objectKeys(originalVoiceovers).length > 0">
+    <h3 style="text-align: center">Voiceover Starting at {{currentVoiceoverStart}}s</h3>
+    <mat-grid-list cols="12" rowHeight="1:6">
+      <mat-grid-tile colspan="6" *ngFor="let start of voiceoverStarts; let i = index">
+        <mat-card>
+          <p>Start: {{start}}s | Duration: {{originalVoiceovers[start].duration}}s</p>
+          <p>Transcript: {{originalVoiceovers[start].transcript}}</p>
+          <figure>
+            <figcaption>Hindi Voiceover</figcaption>
+            <audio controls>
+              <source src="{{originalVoiceovers[start].wav}}" type="audio/wav">
+              Your browser does not support the audio tag.
+            </audio>
+          </figure>
+          <ng-container *ngIf="canRecord">
+            <button mat-raised-button color="accent" (click)="startRecording()" *ngIf="!isRecording">Record</button>
+            <button mat-raised-button color="accent" (click)="stopRecording()" *ngIf="isRecording">Stop</button>
+            <ng-container *ngIf="!isRecording && recordedAudio.length > 0">
+              <figure>
+                <figcaption>Your Voiceover</figcaption>
+                <audio controls>
+                  <source [src]="safeAudioUrl" type="audio/ogg">
+                  Your browser does not support the audio tag.
+                </audio>
+              </figure>
+              <button mat-raised-button color="accent" (click)="deleteRecording()">Delete</button>
+            </ng-container>
+          </ng-container>
+        </mat-card>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </ng-container>
 </ng-template>
