@@ -19,7 +19,7 @@ export class AudioRecordingService {
   private interval;
   private startTime;
   private _recorded = new Subject < any > ();
-  private _recordingTime = new Subject < string > ();
+  private _recordingTime = new Subject < moment.Duration > ();
   private _recordingFailed = new Subject < string > ();
 
   constructor() {}
@@ -28,7 +28,7 @@ export class AudioRecordingService {
     return this._recorded.asObservable();
   }
 
-  getRecordedTime(): Observable < string > {
+  getRecordedTime(): Observable < moment.Duration > {
     return this._recordingTime.asObservable();
   }
 
@@ -61,7 +61,8 @@ export class AudioRecordingService {
         const currentTime = moment();
         const diffTime = moment.duration(currentTime.diff(this.startTime));
         const time = this.toString(diffTime.minutes()) + ':' + this.toString(diffTime.seconds());
-        this._recordingTime.next(time);
+        // this._recordingTime.next(time);
+        this._recordingTime.next(diffTime);
       },
       1000
     );
@@ -72,7 +73,7 @@ export class AudioRecordingService {
       // It means recording is already started or it is already recording something
       return;
     }
-    this._recordingTime.next('00:00');
+    this._recordingTime.next(moment.duration(0));
     navigator.mediaDevices.getUserMedia({
       audio: true
     }).then(s => {

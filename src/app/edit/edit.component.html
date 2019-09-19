@@ -1,6 +1,5 @@
-<!-- <h1>{{video.title}}</h1> -->
 <mat-accordion>
-  <mat-expansion-panel>
+  <mat-expansion-panel expanded>
     <mat-expansion-panel-header>
       <mat-panel-title>
         Setup
@@ -46,24 +45,8 @@
 
 <ng-template #ost>
   <ng-container *ngIf="objectKeys(frames).length > 0">
-    <h3 style="text-align: center">Frame #{{currentOSTFrame}}</h3>
-    <mat-grid-list cols="12" rowHeight="1:4">
-      <mat-grid-tile colspan="6">
-        <div class="container">
-          <img src="{{frames[currentOSTFrame].cleanImage}}" alt="Frame {{currentOSTFrame}}" style="width:100%;"
-            #ostCleanImage>
-          <div *ngFor="let box of frames[currentOSTFrame].boxes; let i = index" class="text-overlay"
-            [ngStyle]="getCoords(i)">{{box.text}}</div>
-        </div>
-      </mat-grid-tile>
-      <mat-grid-tile colspan="6">
-        <div class="container">
-          <img src="{{frames[currentOSTFrame].finalImage}}" alt="Snow" style="width:100%;">
-        </div>
-      </mat-grid-tile>
-    </mat-grid-list>
     <mat-accordion>
-      <mat-expansion-panel (opened)="currentOSTFrame = number" *ngFor="let number of frameNumbers">
+      <mat-expansion-panel *ngFor="let number of frameNumbers">
         <mat-expansion-panel-header>
           <mat-panel-title>
             Frame {{number}}
@@ -72,6 +55,20 @@
             {{frames[number].boxes.length}} Text Boxes
           </mat-panel-description>
         </mat-expansion-panel-header>
+        <mat-grid-list cols="12" rowHeight="1:4">
+          <mat-grid-tile colspan="6">
+            <div class="container">
+              <img src="{{frames[number].cleanImage}}" alt="Frame {{number}}" style="width:100%;" #ostCleanImage>
+              <div *ngFor="let box of frames[number].boxes; let i = index" class="text-overlay"
+                [ngStyle]="getCoords(number,i)">{{box.text}}</div>
+            </div>
+          </mat-grid-tile>
+          <mat-grid-tile colspan="6">
+            <div class="container">
+              <img src="{{frames[number].finalImage}}" alt="Snow" style="width:100%;">
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>
         <mat-grid-list cols="12" rowHeight="1:1">
           <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let i = index">
             <mat-card>
@@ -87,36 +84,64 @@
 
 <ng-template #voiceover>
   <ng-container *ngIf="originalVoiceovers && objectKeys(originalVoiceovers).length > 0">
-    <mat-grid-list cols="12" rowHeight="1:6">
-      <mat-grid-tile colspan="6" *ngFor="let start of voiceoverStarts; let i = index">
-        <mat-card>
-          <p>Start: {{start}}s | Duration: {{originalVoiceovers[start].duration}}s</p>
-          <p>Transcript: {{originalVoiceovers[start].transcript}}</p>
-          <figure>
-            <figcaption>Hindi Voiceover</figcaption>
-            <audio controls>
-              <source src="{{originalVoiceovers[start].wav}}" type="audio/wav">
-              Your browser does not support the audio tag.
-            </audio>
-          </figure>
-          <ng-container>
-            <div *ngIf="isRecording && !recordedVoiceovers[start]"> {{recordedTime}} </div>
-            <button mat-raised-button color="accent" (click)="startRecording(start)"
-              *ngIf="!isRecording && !recordedVoiceovers[start]">Record</button>
-            <button mat-raised-button color="accent" (click)="stopRecording()" *ngIf="isRecording">Stop</button>
-            <ng-container *ngIf="!isRecording && recordedVoiceovers[start] && recordedVoiceovers[start].safeUrl">
-              <figure>
-                <figcaption>Your Voiceover</figcaption>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let start of voiceoverStarts; let i = index">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Voiceover starting at {{start}}s
+          </mat-panel-title>
+          <mat-panel-description>
+            Duration: Original: {{originalVoiceovers[start].duration}}s | Recorded:
+            {{recordedVoiceovers[start] && recordedVoiceovers[start].duration || 0}}s
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-grid-list cols="12" rowHeight="1:2">
+          <mat-grid-tile colspan="4">
+            <mat-card>
+              <mat-card-title>
+                Transcript
+              </mat-card-title>
+              <mat-card-content>
+                <p>{{originalVoiceovers[start].transcript || 'No transcript available.'}}</p>
+              </mat-card-content>
+            </mat-card>
+          </mat-grid-tile>
+          <mat-grid-tile colspan="4">
+            <mat-card>
+              <mat-card-title>
+                Hindi Voiceover
+              </mat-card-title>
+              <mat-card-content>
                 <audio controls>
+                  <source src="{{originalVoiceovers[start].wav}}" type="audio/wav">
+                  Your browser does not support the audio tag.
+                </audio>
+              </mat-card-content>
+            </mat-card>
+          </mat-grid-tile>
+          <mat-grid-tile colspan="4">
+            <mat-card>
+              <mat-card-title>
+                Record Voiceover
+              </mat-card-title>
+              <mat-card-content>
+                <p *ngIf="isRecording && !recordedVoiceovers[start]"> {{recordedTime}}s </p>
+                <audio controls *ngIf="!isRecording && recordedVoiceovers[start] && recordedVoiceovers[start].safeUrl">
                   <source [src]="recordedVoiceovers[start].safeUrl" type="audio/webm">
                   Your browser does not support the audio tag.
                 </audio>
-              </figure>
-              <button mat-raised-button color="accent" (click)="deleteRecording(start)">Delete</button>
-            </ng-container>
-          </ng-container>
-        </mat-card>
-      </mat-grid-tile>
-    </mat-grid-list>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-raised-button color="accent" (click)="startRecording(start)"
+                  *ngIf="!isRecording && !recordedVoiceovers[start]">Record</button>
+                <button mat-raised-button color="accent" (click)="stopRecording()" *ngIf="isRecording">Stop</button>
+                <button mat-raised-button color="accent" (click)="deleteRecording(start)"
+                  *ngIf="!isRecording && recordedVoiceovers[start] && recordedVoiceovers[start].safeUrl">Delete</button>
+              </mat-card-actions>
+            </mat-card>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </mat-expansion-panel>
+    </mat-accordion>
   </ng-container>
 </ng-template>

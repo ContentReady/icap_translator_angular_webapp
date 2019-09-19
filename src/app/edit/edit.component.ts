@@ -19,7 +19,6 @@ export class EditComponent implements OnInit, OnDestroy {
   video = {};
   frames = {};
   frameNumbers = [];
-  currentOSTFrame = 0;
   originalVoiceovers = {};
   voiceoverStarts = [];
   isRecording = false;
@@ -43,14 +42,15 @@ export class EditComponent implements OnInit, OnDestroy {
     });
 
     this.audioRecordingService.getRecordedTime().subscribe((time) => {
-      this.recordedTime = time;
+      this.recordedTime = time.asSeconds();
     });
 
     this.audioRecordingService.getRecordedBlob().subscribe((data) => {
       const safeUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(data.blob));
       this.recordedVoiceovers[this.currentVoiceoverStart] = {
         blob: data.blob,
-        safeUrl: safeUrl
+        safeUrl: safeUrl,
+        duration: this.recordedTime
       }
       this.currentVoiceoverStart = null;
     });
@@ -103,7 +103,7 @@ export class EditComponent implements OnInit, OnDestroy {
     this.voiceoverStarts.sort((a, b) => a - b);
   }
 
-  getCoords(boxNumber) {
+  getCoords(frameNumber,boxNumber) {
     let top = 0;
     let left = 0;
     let scaleX = 1;
@@ -111,8 +111,8 @@ export class EditComponent implements OnInit, OnDestroy {
     if (this.ostCleanImage) {
       scaleX = this.ostCleanImage.nativeElement.offsetWidth/this.frameDimensions[0];    
       scaleY = this.ostCleanImage.nativeElement.offsetHeight/this.frameDimensions[1];
-      left = this.frames[this.currentOSTFrame].boxes[boxNumber].coords[0]*scaleX; 
-      top = this.frames[this.currentOSTFrame].boxes[boxNumber].coords[1]*scaleY;
+      left = this.frames[frameNumber].boxes[boxNumber].coords[0]*scaleX; 
+      top = this.frames[frameNumber].boxes[boxNumber].coords[1]*scaleY;
     }
     const style = {
       top: `${top}px`,
