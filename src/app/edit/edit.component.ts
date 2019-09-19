@@ -1,29 +1,31 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { DbService } from '../services/db.service';
 import { ActivatedRoute } from '@angular/router';
 import { first } from "rxjs/operators";
 import {environment} from '../../environments/environment';
+import { AudioRecordingService } from '../services/audiorecording.service';
 
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.css']
 })
-export class EditComponent implements OnInit {
-
+export class EditComponent implements OnInit, OnDestroy {
+  availableLanguages = [];
+  selectedLanguage = {};
+  selectedFontSize = 40;
+  selectedFontColor = '#000000';
   video = {};
   frames = {};
   frameNumbers = [];
   currentOSTFrame = 0;
-  canRecord = false;
   originalVoiceovers = {};
   voiceoverStarts = [];
   isRecording = false;
-  recordedAudio = [];
-  stream: any;
-  mediaRecorder: MediaRecorder;
-  tempAudioUrl = '';
+  recordedTime;
+  currentVoiceoverStart;
+  recordedVoiceovers = {};
   safeAudioUrl: SafeUrl;
   objectKeys = Object.keys;
   frameDimensions = [1920,1080]; // Actual dimensions of the frame. Used in scaling.
@@ -32,23 +34,41 @@ export class EditComponent implements OnInit {
   constructor(
     private db: DbService,
     private route: ActivatedRoute,
-    private sanitizer: DomSanitizer
-  ) { }
+    private sanitizer: DomSanitizer,
+    private audioRecordingService: AudioRecordingService,
+  ) { 
+    this.audioRecordingService.recordingFailed().subscribe(() => {
+      this.isRecording = false;
+      this.currentVoiceoverStart = null;
+    });
+
+    this.audioRecordingService.getRecordedTime().subscribe((time) => {
+      this.recordedTime = time;
+    });
+
+    this.audioRecordingService.getRecordedBlob().subscribe((data) => {
+      const safeUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(data.blob));
+      this.recordedVoiceovers[this.currentVoiceoverStart] = {
+        blob: data.blob,
+        safeUrl: safeUrl
+      }
+      this.currentVoiceoverStart = null;
+    });
+  }
 
   async ngOnInit() {
     this.route.params.pipe(first()).subscribe(params => {
       if (params.id) {
+        this.getLanguages();
         this.getVideoData(params.id);
+
       }
     });
-    try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.setupRecorder(this.stream);
-      this.canRecord = true;
-    } catch(e) {
-      console.error(e);
-    }
-    
+  }
+
+  async getLanguages() {
+    this.availableLanguages = (await this.db.getAvailableLanguages())['message'];
+    console.log(this.availableLanguages);
   }
 
   async getVideoData(video_ref) {
@@ -63,7 +83,7 @@ export class EditComponent implements OnInit {
       boxes.map((coords, i) => {
         this.frames[frame.number].boxes.push({
           'coords': coords,
-          'text': `Box ${i+1}`
+          'text': `Text ${i+1}`
         });
       });
       this.frameNumbers.push(frame.number);
@@ -101,48 +121,35 @@ export class EditComponent implements OnInit {
     }
     return style;
   }
-  
-  wait(delayInMS) {
-    return new Promise(resolve => setTimeout(resolve, delayInMS));
-  }
 
-  setupRecorder(stream) {
-    this.mediaRecorder = new MediaRecorder(stream);
-
-    this.mediaRecorder.ondataavailable = event => this.recordedAudio.push(event.data);
-  
-    let stopped = new Promise((resolve, reject) => {
-      this.mediaRecorder.onstop = resolve;
-      this.mediaRecorder.onerror = event => reject(event['name']);
-    });
-  
-    return Promise.all([
-      stopped,
-    ])
-    .then(() => this.recordedAudio);
-
-  }
-
-  startRecording() {
-    this.isRecording = true;
-    this.mediaRecorder.start();
+  startRecording(start) {
+    if (!this.isRecording) {
+      this.currentVoiceoverStart = start;
+      this.isRecording = true;
+      this.audioRecordingService.startRecording();
+    }
   }
 
   stopRecording() {
-    this.isRecording = false;
-    this.stream.getTracks().forEach(track => track.stop());
-    console.log(this.recordedAudio);
-    console.log(typeof(this.recordedAudio));
-    const blob = new Blob(this.recordedAudio, {'type':'audio/ogg; codecs=opus'});
-    // this.recordedAudio = [];
-    const tempAudioUrl = window.URL.createObjectURL(blob);
-    console.log(tempAudioUrl);
-    this.safeAudioUrl = this.sanitizer.bypassSecurityTrustUrl(tempAudioUrl);
-    console.log(this.safeAudioUrl);
+    if (this.isRecording) {
+      this.audioRecordingService.stopRecording();
+      this.isRecording = false;
+    }
+  }
+  abortRecording() {
+    if (this.isRecording) {
+      this.isRecording = false;
+      this.audioRecordingService.abortRecording();
+    }
   }
 
-  deleteRecording() {
-    this.recordedAudio = [];
+  deleteRecording(start) {
+    // this.safeAudioUrl = null;
+    delete this.recordedVoiceovers[start];
+  }
+
+  ngOnDestroy(): void {
+    this.abortRecording();
   }
 
 }

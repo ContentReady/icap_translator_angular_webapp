@@ -1,4 +1,40 @@
 <!-- <h1>{{video.title}}</h1> -->
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Setup
+      </mat-panel-title>
+      <mat-panel-description>
+        Lang: {{selectedLanguage.title}} | Size: {{selectedFontSize}} | Colour: {{selectedFontColor}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-grid-list cols="12" rowHeight="1:1">
+      <mat-grid-tile colspan="4">
+        <mat-form-field>
+          <mat-label>Language</mat-label>
+          <mat-select [(ngModel)]="selectedLanguage">
+            <mat-option *ngFor="let lang of availableLanguages" [value]="lang">
+              {{lang.title}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile colspan="4">
+        <mat-label>Font Size</mat-label>
+        <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='selectedFontSize'>
+      </mat-grid-tile>
+      <mat-grid-tile colspan="4">
+        <mat-label>Font Colour</mat-label>
+        <input matInput placeholder="Font Colour" type="color" [(ngModel)]='selectedFontColor'>
+      </mat-grid-tile>
+    </mat-grid-list>
+    <mat-action-row>
+      <button mat-button>Build Video</button>
+    </mat-action-row>
+  </mat-expansion-panel>
+</mat-accordion>
+
 <mat-tab-group>
   <mat-tab label="OST">
     <ng-container *ngTemplateOutlet="ost"></ng-container>
@@ -51,7 +87,6 @@
 
 <ng-template #voiceover>
   <ng-container *ngIf="originalVoiceovers && objectKeys(originalVoiceovers).length > 0">
-    <h3 style="text-align: center">Voiceover Starting at {{currentVoiceoverStart}}s</h3>
     <mat-grid-list cols="12" rowHeight="1:6">
       <mat-grid-tile colspan="6" *ngFor="let start of voiceoverStarts; let i = index">
         <mat-card>
@@ -64,18 +99,20 @@
               Your browser does not support the audio tag.
             </audio>
           </figure>
-          <ng-container *ngIf="canRecord">
-            <button mat-raised-button color="accent" (click)="startRecording()" *ngIf="!isRecording">Record</button>
+          <ng-container>
+            <div *ngIf="isRecording && !recordedVoiceovers[start]"> {{recordedTime}} </div>
+            <button mat-raised-button color="accent" (click)="startRecording(start)"
+              *ngIf="!isRecording && !recordedVoiceovers[start]">Record</button>
             <button mat-raised-button color="accent" (click)="stopRecording()" *ngIf="isRecording">Stop</button>
-            <ng-container *ngIf="!isRecording && recordedAudio.length > 0">
+            <ng-container *ngIf="!isRecording && recordedVoiceovers[start] && recordedVoiceovers[start].safeUrl">
               <figure>
                 <figcaption>Your Voiceover</figcaption>
                 <audio controls>
-                  <source [src]="safeAudioUrl" type="audio/ogg">
+                  <source [src]="recordedVoiceovers[start].safeUrl" type="audio/webm">
                   Your browser does not support the audio tag.
                 </audio>
               </figure>
-              <button mat-raised-button color="accent" (click)="deleteRecording()">Delete</button>
+              <button mat-raised-button color="accent" (click)="deleteRecording(start)">Delete</button>
             </ng-container>
           </ng-container>
         </mat-card>

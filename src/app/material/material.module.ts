@@ -11,6 +11,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select'; 
 
 const Material = [
   MatToolbarModule,
@@ -22,7 +23,8 @@ const Material = [
   MatListModule,
   MatSidenavModule,
   MatExpansionModule,
-  MatFormFieldModule
+  MatFormFieldModule,
+  MatSelectModule
 ]
 
 @NgModule({

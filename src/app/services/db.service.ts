@@ -32,4 +32,9 @@ export class DbService {
     const url = `${environment.cmsEndpoint}/api/method/icap.api.get_frames?video_ref=${video_ref}`;
     return this.http.get(url,{headers:this.httpHeaders}).toPromise();
   }
+
+  getAvailableLanguages() {
+    const url = `${environment.cmsEndpoint}/api/method/icap.api.get_languages`;
+    return this.http.get(url,{headers:this.httpHeaders}).toPromise();
+  }
 }
