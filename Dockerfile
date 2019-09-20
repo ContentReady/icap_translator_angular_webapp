@@ -1,5 +1,5 @@
 # build environment
-FROM node:10.13.10 as builder
+FROM node:10 as builder
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
