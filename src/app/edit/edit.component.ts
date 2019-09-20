@@ -6,6 +6,30 @@ import { first } from "rxjs/operators";
 import {environment} from '../../environments/environment';
 import { AudioRecordingService } from '../services/audiorecording.service';
 
+interface TranslationRequest {
+  source_video: String;
+  frames: Array<Frame>;
+  voiceovers: Array<Voiceover>;
+  language: String;
+  fontsize: Number;
+  fontcolor: String;
+}
+
+interface Frame {
+  number: Number;
+  boxes: String;
+  clean_image?: String;
+  final_image?: String;
+}
+
+interface Voiceover {
+  start: Number;
+  end?: Number;
+  duration: Number;
+  wav?: String;
+  transcript?: String;
+}
+
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
@@ -13,9 +37,6 @@ import { AudioRecordingService } from '../services/audiorecording.service';
 })
 export class EditComponent implements OnInit, OnDestroy {
   availableLanguages = [];
-  selectedLanguage = {};
-  selectedFontSize = 40;
-  selectedFontColor = '#000000';
   video = {};
   frames = {};
   frameNumbers = [];
@@ -25,7 +46,14 @@ export class EditComponent implements OnInit, OnDestroy {
   recordedTime;
   currentVoiceoverStart;
   recordedVoiceovers = {};
-  safeAudioUrl: SafeUrl;
+  request:TranslationRequest = {
+    language: '',
+    fontsize: 40,
+    fontcolor: '#000000',
+    source_video: '',
+    frames: [],
+    voiceovers: [],
+  };
   objectKeys = Object.keys;
   frameDimensions = [1920,1080]; // Actual dimensions of the frame. Used in scaling.
 
@@ -50,6 +78,7 @@ export class EditComponent implements OnInit, OnDestroy {
       this.recordedVoiceovers[this.currentVoiceoverStart] = {
         blob: data.blob,
         safeUrl: safeUrl,
+        start: this.currentVoiceoverStart,
         duration: this.recordedTime
       }
       this.currentVoiceoverStart = null;
@@ -59,37 +88,38 @@ export class EditComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.route.params.pipe(first()).subscribe(params => {
       if (params.id) {
+        this.request.source_video = params.id;
         this.getLanguages();
         this.getVideoData(params.id);
-
       }
     });
   }
 
   async getLanguages() {
     this.availableLanguages = (await this.db.getAvailableLanguages())['message'];
-    console.log(this.availableLanguages);
+    this.request.language = this.availableLanguages[0].title;
   }
 
   async getVideoData(video_ref) {
     this.video = (await this.db.getVideoByRef(video_ref))['data'];
     this.video['frames'].map(frame => {
-      this.frames[frame.number] = {
+      const temp_frame = {
+        number: frame.number,
         boxes: [],
         cleanImage: `${environment.cmsEndpoint}${frame.clean_image}`,
         finalImage: `${environment.cmsEndpoint}${frame.final_image}`
       };
       const boxes = JSON.parse(frame.boxes);
       boxes.map((coords, i) => {
-        this.frames[frame.number].boxes.push({
+        temp_frame.boxes.push({
           'coords': coords,
           'text': `Text ${i+1}`
         });
       });
+      this.frames[frame.number] = temp_frame;
       this.frameNumbers.push(frame.number);
     });
     this.frameNumbers.sort((a, b) => a - b);
-    // console.log(this.video);
     this.video['voiceovers'].map(voiceover => {
       this.originalVoiceovers[voiceover.start] = {
         wav: `${environment.cmsEndpoint}${voiceover.wav}`,
@@ -144,12 +174,34 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   deleteRecording(start) {
-    // this.safeAudioUrl = null;
     delete this.recordedVoiceovers[start];
   }
 
   ngOnDestroy(): void {
     this.abortRecording();
+  }
+
+  async sendRequestToFrappe() {
+    // reset before populating
+    this.request.frames = [];
+    this.request.voiceovers = [];
+    Object.values(this.frames).map(frame => {
+      const tempFrame: Frame = {
+        number: frame['number'],
+        boxes: JSON.stringify(frame['boxes'])
+      }
+      this.request.frames.push(tempFrame);
+    });
+    Object.values(this.recordedVoiceovers).map(voiceover => {
+      const tempVoiceover: Voiceover = {
+        start: voiceover['start'],
+        duration: voiceover['duration'],
+        end: voiceover['start'] + voiceover['duration'],
+      }
+      this.request.voiceovers.push(tempVoiceover);
+    });
+    const translationRequest = (await this.db.uploadTranslationRequest(this.request))['data'];
+    this.db.uploadVoiceovers(this.recordedVoiceovers,translationRequest);
   }
 
 }

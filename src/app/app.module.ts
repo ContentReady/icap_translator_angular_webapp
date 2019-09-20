@@ -11,6 +11,8 @@ import { LandingComponent } from './landing/landing.component';
 import { ToolbarComponent } from './common/toolbar/toolbar.component';
 import { EditComponent } from './edit/edit.component';
 import { MaterialModule } from './material/material.module';
+import { TranslatedComponent } from './translated/translated.component';
+import { TranslatedVideoComponent } from './translated-video/translated-video.component';
 
 
 @NgModule({
@@ -18,7 +20,9 @@ import { MaterialModule } from './material/material.module';
     AppComponent,
     LandingComponent,
     ToolbarComponent,
-    EditComponent
+    EditComponent,
+    TranslatedComponent,
+    TranslatedVideoComponent
   ],
   imports: [
     BrowserModule,

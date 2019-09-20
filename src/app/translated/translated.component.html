@@ -1,0 +1,6 @@
+<h1>Translated Videos</h1>
+
+<mat-card *ngFor="let video of videos">
+    <mat-card-title><a routerLink="/translated/{{video.name}}">{{video.name}} | {{video.request}} | {{video.language}}</a></mat-card-title>
+</mat-card>
+

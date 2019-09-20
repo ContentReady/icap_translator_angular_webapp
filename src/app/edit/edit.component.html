@@ -5,15 +5,15 @@
         Setup
       </mat-panel-title>
       <mat-panel-description>
-        Lang: {{selectedLanguage.title}} | Size: {{selectedFontSize}} | Colour: {{selectedFontColor}}
+        Lang: {{request.language}} | Size: {{request.fontsize}} | Colour: {{request.fontcolor}}
       </mat-panel-description>
     </mat-expansion-panel-header>
     <mat-grid-list cols="12" rowHeight="1:1">
       <mat-grid-tile colspan="4">
         <mat-form-field>
           <mat-label>Language</mat-label>
-          <mat-select [(ngModel)]="selectedLanguage">
-            <mat-option *ngFor="let lang of availableLanguages" [value]="lang">
+          <mat-select [(ngModel)]="request.language">
+            <mat-option *ngFor="let lang of availableLanguages" [value]="lang.title">
               {{lang.title}}
             </mat-option>
           </mat-select>
@@ -21,15 +21,15 @@
       </mat-grid-tile>
       <mat-grid-tile colspan="4">
         <mat-label>Font Size</mat-label>
-        <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='selectedFontSize'>
+        <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='request.fontsize'>
       </mat-grid-tile>
       <mat-grid-tile colspan="4">
         <mat-label>Font Colour</mat-label>
-        <input matInput placeholder="Font Colour" type="color" [(ngModel)]='selectedFontColor'>
+        <input matInput placeholder="Font Colour" type="color" [(ngModel)]='request.fontcolor'>
       </mat-grid-tile>
     </mat-grid-list>
     <mat-action-row>
-      <button mat-button>Build Video</button>
+      <button mat-button (click)="sendRequestToFrappe()">Build Video</button>
     </mat-action-row>
   </mat-expansion-panel>
 </mat-accordion>
