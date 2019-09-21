@@ -79,7 +79,7 @@ export class DbService {
   }
 
   getTranslatedVideos() {
-    const url = `${environment.cmsEndpoint}/api/resource/Translated Video/?fields=["name", "language", "request"]`;
+    const url = `${environment.cmsEndpoint}/api/resource/Translated Video/?fields=["name", "language", "request"]&filters=[["Translated Video","is_published","=",true]]`;
     return this.http.get(url,{headers:this.httpHeaders}).toPromise();
   }
 

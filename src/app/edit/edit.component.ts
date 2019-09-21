@@ -219,13 +219,13 @@ export class EditComponent implements OnInit, OnDestroy {
     const translationRequest = (await this.db.uploadTranslationRequest(this.request))['data'];
     if (translationRequest.name) {
       this.db.uploadVoiceovers(this.recordedVoiceovers,translationRequest);
-      alert(`Your request has been submitted successfully with the ID: ${translationRequest.name}. \nIf you entered your email, you will be notified once the video is ready to view.`);
     } else {
       const msg = 'Something went wrong. Please try again after some time.';
       console.log(msg);
       alert(msg);
     }
     await this.sleep(10000);
+    alert(`Your request has been submitted successfully with the ID: ${translationRequest.name}. \nIf you entered your email, you will be notified once the video is ready to view.`);
     this.canSubmit = true;
   }
 
