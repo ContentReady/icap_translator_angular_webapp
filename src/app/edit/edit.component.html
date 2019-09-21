@@ -1,50 +1,57 @@
-<mat-accordion>
-  <mat-expansion-panel expanded>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Setup
-      </mat-panel-title>
-      <mat-panel-description>
-        Lang: {{request.language}} | Size: {{request.fontsize}} | Colour: {{request.fontcolor}}
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <mat-grid-list cols="12" rowHeight="1:1">
-      <mat-grid-tile colspan="4">
-        <mat-form-field>
-          <mat-label>Language</mat-label>
-          <mat-select [(ngModel)]="request.language">
-            <mat-option *ngFor="let lang of availableLanguages" [value]="lang.title">
-              {{lang.title}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
-      <mat-grid-tile colspan="4">
-        <mat-label>Font Size</mat-label>
-        <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='request.fontsize'>
-      </mat-grid-tile>
-      <mat-grid-tile colspan="4">
-        <mat-label>Font Colour</mat-label>
-        <input matInput placeholder="Font Colour" type="color" [(ngModel)]='request.fontcolor'>
-      </mat-grid-tile>
-    </mat-grid-list>
-    <mat-action-row>
-      <button mat-button (click)="sendRequestToFrappe()">Build Video</button>
-    </mat-action-row>
-  </mat-expansion-panel>
-</mat-accordion>
+<div *ngIf="request.language; else nothing">
+  <mat-accordion>
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Setup
+        </mat-panel-title>
+        <mat-panel-description>
+          Lang: {{request.language}} | Size: {{request.fontsize}} | Colour: {{request.fontcolor}}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-grid-list cols="12" rowHeight="1:1">
+        <mat-grid-tile colspan="4">
+          <mat-form-field>
+            <mat-label>Language</mat-label>
+            <mat-select [(ngModel)]="request.language">
+              <mat-option *ngFor="let lang of availableLanguages" [value]="lang.title">
+                {{lang.title}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="4">
+          <mat-label>Font Size</mat-label>
+          <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='request.fontsize'>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="4">
+          <mat-label>Font Colour</mat-label>
+          <input matInput placeholder="Font Colour" type="color" [(ngModel)]='request.fontcolor'>
+        </mat-grid-tile>
+      </mat-grid-list>
+      <p>Please ensure that the language selected matches the text you have entered for OST.</p>
+      <p>Translation is a time consuming process. Please enter an email below to receive a notification once the translation request is fulfilled.</p>
+      <mat-label>Email </mat-label>
+      <input matInput placeholder="email@example.com" type="email" [(ngModel)]='request.email'>
+      <mat-action-row>
+        <p *ngIf="!canSubmit">Please wait while we submit your request.</p>
+        <button mat-button [disabled]="!canSubmit" (click)="sendRequestToFrappe()">Build Video</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
 
-<mat-tab-group>
-  <mat-tab label="OST">
-    <ng-container *ngTemplateOutlet="ost"></ng-container>
-  </mat-tab>
-  <mat-tab label="Voiceover">
-    <ng-container *ngTemplateOutlet="voiceover"></ng-container>
-  </mat-tab>
-</mat-tab-group>
+  <mat-tab-group>
+    <mat-tab label="OST">
+      <ng-container *ngTemplateOutlet="ost"></ng-container>
+    </mat-tab>
+    <mat-tab label="Voiceover">
+      <ng-container *ngTemplateOutlet="voiceover"></ng-container>
+    </mat-tab>
+  </mat-tab-group>
+</div>
 
 <ng-template #ost>
-  <ng-container *ngIf="objectKeys(frames).length > 0">
+  <ng-container *ngIf="objectKeys(frames).length > 0; else noFrames">
     <mat-accordion>
       <mat-expansion-panel *ngFor="let number of frameNumbers">
         <mat-expansion-panel-header>
@@ -83,7 +90,7 @@
 </ng-template>
 
 <ng-template #voiceover>
-  <ng-container *ngIf="originalVoiceovers && objectKeys(originalVoiceovers).length > 0">
+  <ng-container *ngIf="originalVoiceovers && objectKeys(originalVoiceovers).length > 0; else noVoiceovers">
     <mat-accordion>
       <mat-expansion-panel *ngFor="let start of voiceoverStarts; let i = index">
         <mat-expansion-panel-header>
@@ -144,4 +151,16 @@
       </mat-expansion-panel>
     </mat-accordion>
   </ng-container>
+</ng-template>
+
+<ng-template #nothing>
+  <h3>Please wait. If you see this message for longer than 15 seconds, try reloading the page.</h3>
+</ng-template>
+
+<ng-template #noFrames>
+  <h4>Something isn't quite right. This video does not appear to have any OST information for translation. Please try another video.</h4>
+</ng-template>
+
+<ng-template #noVoiceovers>
+  <h4>Something isn't quite right. This video does not appear to have any voiceover information for translation. Please try another video.</h4>
 </ng-template>

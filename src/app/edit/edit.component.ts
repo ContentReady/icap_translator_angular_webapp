@@ -7,6 +7,7 @@ import {environment} from '../../environments/environment';
 import { AudioRecordingService } from '../services/audiorecording.service';
 
 interface TranslationRequest {
+  email?: String;
   source_video: String;
   frames: Array<Frame>;
   voiceovers: Array<Voiceover>;
@@ -36,6 +37,7 @@ interface Voiceover {
   styleUrls: ['./edit.component.css']
 })
 export class EditComponent implements OnInit, OnDestroy {
+  email = '';
   availableLanguages = [];
   video = {};
   frames = {};
@@ -47,6 +49,7 @@ export class EditComponent implements OnInit, OnDestroy {
   currentVoiceoverStart;
   recordedVoiceovers = {};
   request:TranslationRequest = {
+    email: '',
     language: '',
     fontsize: 40,
     fontcolor: '#000000',
@@ -54,6 +57,7 @@ export class EditComponent implements OnInit, OnDestroy {
     frames: [],
     voiceovers: [],
   };
+  canSubmit = true;
   objectKeys = Object.keys;
   frameDimensions = [1920,1080]; // Actual dimensions of the frame. Used in scaling.
 
@@ -83,6 +87,10 @@ export class EditComponent implements OnInit, OnDestroy {
       }
       this.currentVoiceoverStart = null;
     });
+  }
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async ngOnInit() {
@@ -182,6 +190,14 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   async sendRequestToFrappe() {
+    if (!confirm("Are you sure you want to submit this video for processing?")) {
+      return false;
+    } else {
+      this.canSubmit = false;
+      const msg = 'Submitting translation request. This is a time consuming process.';
+      console.log(msg);
+      alert(msg);
+    }
     // reset before populating
     this.request.frames = [];
     this.request.voiceovers = [];
@@ -201,7 +217,20 @@ export class EditComponent implements OnInit, OnDestroy {
       this.request.voiceovers.push(tempVoiceover);
     });
     const translationRequest = (await this.db.uploadTranslationRequest(this.request))['data'];
-    this.db.uploadVoiceovers(this.recordedVoiceovers,translationRequest);
+    if (translationRequest.name) {
+      this.db.uploadVoiceovers(this.recordedVoiceovers,translationRequest);
+      alert(`Your request has been submitted successfully with the ID: ${translationRequest.name}. \nIf you entered your email, you will be notified once the video is ready to view.`);
+    } else {
+      const msg = 'Something went wrong. Please try again after some time.';
+      console.log(msg);
+      alert(msg);
+    }
+    await this.sleep(10000);
+    this.canSubmit = true;
+  }
+
+  resetAll(){
+    // Behaviour to be defined. Empty text boxes? 
   }
 
 }
