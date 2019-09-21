@@ -1,5 +1,5 @@
 <h1>Translated Videos</h1>
-<div *ngIf="videos.length > 0; else nothing">
+<div *ngIf="videos && videos.length > 0; else nothing">
   <mat-card *ngFor="let video of videos">
     <mat-card-title><a routerLink="/translated/{{video.name}}">{{video.name}} | {{video.request}} |
         {{video.language}}</a></mat-card-title>

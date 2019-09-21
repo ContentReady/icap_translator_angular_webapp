@@ -12,7 +12,8 @@ import {environment} from '../../environments/environment';
 export class TranslatedVideoComponent implements OnInit {
   video = {};
   cleanVideoUrl = '';
-  translatedVideoUrl = '';
+  withOSTVideoUrl = '';
+  finalVideoUrl = '';
   constructor(
     private db: DbService,
     private route: ActivatedRoute
@@ -25,8 +26,11 @@ export class TranslatedVideoComponent implements OnInit {
         if (this.video['clean_video']) {
           this.cleanVideoUrl = `${environment.cmsEndpoint}${this.video['clean_video']}`;
         }
-        if (this.video['video']) {
-          this.translatedVideoUrl = `${environment.cmsEndpoint}${this.video['video']}`;
+        if (this.video['video_with_ost']) {
+          this.withOSTVideoUrl = `${environment.cmsEndpoint}${this.video['video_with_ost']}`;
+        }
+        if (this.video['final_video']) {
+          this.finalVideoUrl = `${environment.cmsEndpoint}${this.video['final_video']}`;
         }
         // console.log(this.cleanVideoUrl);
       }
