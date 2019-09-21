@@ -3,9 +3,9 @@
   <mat-card *ngFor="let video of videos">
     <mat-card-title><a routerLink="/edit/{{video.name}}">{{video.title}}</a></mat-card-title>
     <mat-card-content>
-      <h4>Chapter: #{{video.chapter_number}} | {{video.chapter_name}}</h4>
-      <h5>Grade: {{video.grade}}</h4>
-      <h6>Creator: {{video.creator}}</h4>
+      <h4>Chapter: #{{video.chapter_number}} {{video.chapter_name}}</h4>
+      <h4>Grade: {{video.grade}}</h4>
+      <h4>Creator: {{video.creator}}</h4>
     </mat-card-content>
   </mat-card>
 </div>
