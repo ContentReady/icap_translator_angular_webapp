@@ -32,9 +32,7 @@ export class TranslatedVideoComponent implements OnInit {
         if (this.video['final_video']) {
           this.finalVideoUrl = `${environment.cmsEndpoint}${this.video['final_video']}`;
         }
-        // console.log(this.cleanVideoUrl);
       }
-      console.log(this.video);
     });
   }
 

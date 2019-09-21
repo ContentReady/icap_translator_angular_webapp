@@ -74,7 +74,7 @@ export class DbService {
         base64_string: base64String
       }
       const r = await this.http.post(url,payload,{headers:this.httpHeaders}).toPromise();
-      console.log(r);
+      // console.log(r);
     }
   }
 

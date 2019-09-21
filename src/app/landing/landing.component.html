@@ -1,7 +1,12 @@
 <h1>Videos Available To Translate</h1>
-<div *ngIf="videos.length > 0; else nothing">
+<div *ngIf="videos && videos.length > 0; else nothing">
   <mat-card *ngFor="let video of videos">
     <mat-card-title><a routerLink="/edit/{{video.name}}">{{video.title}}</a></mat-card-title>
+    <mat-card-content>
+      <h4>Chapter: #{{video.chapter_number}} | {{video.chapter_name}}</h4>
+      <h5>Grade: {{video.grade}}</h4>
+      <h6>Creator: {{video.creator}}</h4>
+    </mat-card-content>
   </mat-card>
 </div>
 
