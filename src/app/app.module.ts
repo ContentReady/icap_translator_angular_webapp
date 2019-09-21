@@ -13,6 +13,7 @@ import { EditComponent } from './edit/edit.component';
 import { MaterialModule } from './material/material.module';
 import { TranslatedComponent } from './translated/translated.component';
 import { TranslatedVideoComponent } from './translated-video/translated-video.component';
+import { FooterComponent } from './common/footer/footer.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { TranslatedVideoComponent } from './translated-video/translated-video.co
     ToolbarComponent,
     EditComponent,
     TranslatedComponent,
-    TranslatedVideoComponent
+    TranslatedVideoComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,
