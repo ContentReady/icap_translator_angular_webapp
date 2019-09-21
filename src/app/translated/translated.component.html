@@ -1,6 +1,11 @@
 <h1>Translated Videos</h1>
+<div *ngIf="videos.length > 0; else nothing">
+  <mat-card *ngFor="let video of videos">
+    <mat-card-title><a routerLink="/translated/{{video.name}}">{{video.name}} | {{video.request}} |
+        {{video.language}}</a></mat-card-title>
+  </mat-card>
+</div>
 
-<mat-card *ngFor="let video of videos">
-    <mat-card-title><a routerLink="/translated/{{video.name}}">{{video.name}} | {{video.request}} | {{video.language}}</a></mat-card-title>
-</mat-card>
-
+<ng-template #nothing>
+  <h3>Please wait. If you see this message for longer than 15 seconds, try reloading the page.</h3>
+</ng-template>
