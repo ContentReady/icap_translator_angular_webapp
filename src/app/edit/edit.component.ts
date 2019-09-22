@@ -120,9 +120,17 @@ export class EditComponent implements OnInit, OnDestroy {
         finalImage: `${environment.cmsEndpoint}${frame.final_image}`
       };
       const boxes = JSON.parse(frame.boxes);
+      const tempBoxes = {};
+      const distances = [];
       boxes.map((coords, i) => {
+        const dist = coords[0]*coords[1]; // diagonal distance from top left; used to number boxes
+        tempBoxes[dist] = coords;
+        distances.push(dist);
+      });
+      distances.sort((a,b) => a-b);
+      distances.forEach((dist,i) => {
         temp_frame.boxes.push({
-          'coords': coords,
+          'coords': tempBoxes[dist],
           'text': `Text ${i+1}`
         });
       });
@@ -165,9 +173,7 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(evt) {
-    // console.log(evt);
     this.pageIndex = evt.pageIndex;
-    // console.log(this.pageIndex);
   }
 
   ignoreFrame(frameNumber){
@@ -177,7 +183,10 @@ export class EditComponent implements OnInit, OnDestroy {
 
   copyPreviousFrame(frameNumber, prevIndex){
     const prevFrameNumber = this.frameNumbers[prevIndex];
-    this.frames[frameNumber] = this.frames[prevFrameNumber];
+    // this.frames[frameNumber] = this.frames[prevFrameNumber];
+    this.frames[frameNumber].boxes.forEach((box,i) => {
+      box.text = this.frames[prevFrameNumber].boxes[i].text;
+    });
   }
 
   startRecording(start) {
