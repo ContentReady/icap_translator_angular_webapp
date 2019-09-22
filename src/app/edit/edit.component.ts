@@ -57,6 +57,8 @@ export class EditComponent implements OnInit, OnDestroy {
     frames: [],
     voiceovers: [],
   };
+  pageIndex = 0;
+  pageSize = 50;
   canSubmit = true;
   objectKeys = Object.keys;
   frameDimensions = [1920,1080]; // Actual dimensions of the frame. Used in scaling.
@@ -124,8 +126,10 @@ export class EditComponent implements OnInit, OnDestroy {
           'text': `Text ${i+1}`
         });
       });
-      this.frames[frame.number] = temp_frame;
-      this.frameNumbers.push(frame.number);
+      if (temp_frame.boxes.length > 0) {
+        this.frames[frame.number] = temp_frame;
+        this.frameNumbers.push(frame.number);
+      }
     });
     this.frameNumbers.sort((a, b) => a - b);
     this.video['voiceovers'].map(voiceover => {
@@ -158,6 +162,22 @@ export class EditComponent implements OnInit, OnDestroy {
       // 'font-size': `${scaleX}rem`
     }
     return style;
+  }
+
+  onPageChange(evt) {
+    // console.log(evt);
+    this.pageIndex = evt.pageIndex;
+    // console.log(this.pageIndex);
+  }
+
+  ignoreFrame(frameNumber){
+    delete this.frames[frameNumber];
+    this.frameNumbers.splice(this.frameNumbers.indexOf(frameNumber),1);
+  }
+
+  copyPreviousFrame(frameNumber, prevIndex){
+    const prevFrameNumber = this.frameNumbers[prevIndex];
+    this.frames[frameNumber] = this.frames[prevFrameNumber];
   }
 
   startRecording(start) {

@@ -12,6 +12,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select'; 
+import {MatPaginatorModule} from '@angular/material/paginator';
 
 const Material = [
   MatToolbarModule,
@@ -24,7 +25,8 @@ const Material = [
   MatSidenavModule,
   MatExpansionModule,
   MatFormFieldModule,
-  MatSelectModule
+  MatSelectModule,
+  MatPaginatorModule
 ]
 
 @NgModule({
