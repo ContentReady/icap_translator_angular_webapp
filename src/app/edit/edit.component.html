@@ -87,7 +87,7 @@
         </mat-grid-tile>
       </mat-grid-list>
       <mat-action-row>
-          <button mat-button (click)="copyPreviousFrame(number,i-1)">Copy Previous Frame</button>
+          <button mat-button *ngIf="i>0" (click)="copyPreviousFrame(number,i-1)">Copy Previous Frame</button>
           <button mat-button (click)="ignoreFrame(number)">Ignore Frame</button>
         </mat-action-row>
     </mat-expansion-panel>
