@@ -14,6 +14,7 @@ import { MaterialModule } from './material/material.module';
 import { TranslatedComponent } from './translated/translated.component';
 import { TranslatedVideoComponent } from './translated-video/translated-video.component';
 import { FooterComponent } from './common/footer/footer.component';
+import { FontpickerComponent } from './common/fontpicker/fontpicker.component';
 
 
 @NgModule({
@@ -25,6 +26,10 @@ import { FooterComponent } from './common/footer/footer.component';
     TranslatedComponent,
     TranslatedVideoComponent,
     FooterComponent,
+    FontpickerComponent,
+  ],
+  entryComponents: [
+    FontpickerComponent
   ],
   imports: [
     BrowserModule,

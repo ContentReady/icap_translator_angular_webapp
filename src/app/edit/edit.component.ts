@@ -5,6 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { first } from "rxjs/operators";
 import {environment} from '../../environments/environment';
 import { AudioRecordingService } from '../services/audiorecording.service';
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import { FontpickerComponent } from '../common/fontpicker/fontpicker.component';
 
 interface TranslationRequest {
   email?: String;
@@ -12,8 +14,6 @@ interface TranslationRequest {
   frames: Array<Frame>;
   voiceovers: Array<Voiceover>;
   language: String;
-  fontsize: Number;
-  fontcolor: String;
 }
 
 interface Frame {
@@ -34,7 +34,7 @@ interface Voiceover {
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
-  styleUrls: ['./edit.component.css']
+  styleUrls: ['./edit.component.css'],
 })
 export class EditComponent implements OnInit, OnDestroy {
   email = '';
@@ -51,8 +51,6 @@ export class EditComponent implements OnInit, OnDestroy {
   request:TranslationRequest = {
     email: '',
     language: '',
-    fontsize: 40,
-    fontcolor: '#000000',
     source_video: '',
     frames: [],
     voiceovers: [],
@@ -69,6 +67,7 @@ export class EditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private audioRecordingService: AudioRecordingService,
+    private dialog: MatDialog
   ) { 
     this.audioRecordingService.recordingFailed().subscribe(() => {
       this.isRecording = false;
@@ -131,7 +130,9 @@ export class EditComponent implements OnInit, OnDestroy {
       distances.forEach((dist,i) => {
         temp_frame.boxes.push({
           'coords': tempBoxes[dist],
-          'text': `Text ${i+1}`
+          'text': `Text ${i+1}`,
+          'fontsize': 40,
+          'fontcolor': '#000000'
         });
       });
       if (temp_frame.boxes.length > 0) {
@@ -186,6 +187,28 @@ export class EditComponent implements OnInit, OnDestroy {
     // this.frames[frameNumber] = this.frames[prevFrameNumber];
     this.frames[frameNumber].boxes.forEach((box,i) => {
       box.text = this.frames[prevFrameNumber].boxes[i].text;
+    });
+  }
+
+  openFontDialog(frameNumber,boxNumber){
+    let font = {
+      size: this.frames[frameNumber].boxes[boxNumber].fontsize,
+      color: this.frames[frameNumber].boxes[boxNumber].fontcolor,
+    }
+    const dialogRef = this.dialog.open(FontpickerComponent, {
+      width: '800px',
+      data: {
+        size: this.frames[frameNumber].boxes[boxNumber].fontsize,
+        color: this.frames[frameNumber].boxes[boxNumber].fontcolor,
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.frames[frameNumber].boxes[boxNumber].fontsize = result.size;
+        this.frames[frameNumber].boxes[boxNumber].fontcolor = result.color;
+      }
+    }, e => {
+      console.error(e);
     });
   }
 

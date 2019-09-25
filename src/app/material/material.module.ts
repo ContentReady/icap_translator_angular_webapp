@@ -13,6 +13,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select'; 
 import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialogModule} from '@angular/material/dialog';
 
 const Material = [
   MatToolbarModule,
@@ -26,7 +28,9 @@ const Material = [
   MatExpansionModule,
   MatFormFieldModule,
   MatSelectModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  MatTooltipModule,
+  MatDialogModule
 ]
 
 @NgModule({

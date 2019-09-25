@@ -6,14 +6,15 @@
           Setup
         </mat-panel-title>
         <mat-panel-description>
-          Lang: {{request.language}} | Size: {{request.fontsize}} | Colour: {{request.fontcolor}}
+          Lang: {{request.language}} | Email: {{request.email}}
         </mat-panel-description>
       </mat-expansion-panel-header>
-      <mat-grid-list cols="12" rowHeight="1:1">
+      <mat-grid-list cols="12" rowHeight="2:1">
         <mat-grid-tile colspan="4">
           <mat-form-field>
             <mat-label>Language</mat-label>
-            <mat-select [(ngModel)]="request.language">
+            <mat-select matTooltip="Please ensure language matches OST text." matTooltipPosition="above"
+              [(ngModel)]="request.language">
               <mat-option *ngFor="let lang of availableLanguages" [value]="lang.title">
                 {{lang.title}}
               </mat-option>
@@ -21,19 +22,11 @@
           </mat-form-field>
         </mat-grid-tile>
         <mat-grid-tile colspan="4">
-          <mat-label>Font Size</mat-label>
-          <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='request.fontsize'>
-        </mat-grid-tile>
-        <mat-grid-tile colspan="4">
-          <mat-label>Font Colour</mat-label>
-          <input matInput placeholder="Font Colour" type="color" [(ngModel)]='request.fontcolor'>
+          <mat-label>Email</mat-label>
+          <input matInput matTooltip="Please enter email to receive a notification when video is ready."
+            matTooltipPosition="above" placeholder="email@example.com" type="email" [(ngModel)]='request.email'>
         </mat-grid-tile>
       </mat-grid-list>
-      <p>Please ensure that the language selected matches the text you have entered for OST.</p>
-      <p>Translation is a time consuming process. Please enter an email below to receive a notification once the
-        translation request is fulfilled.</p>
-      <mat-label>Email </mat-label>
-      <input matInput placeholder="email@example.com" type="email" [(ngModel)]='request.email'>
       <mat-action-row>
         <p *ngIf="!canSubmit">Please wait while we submit your request.</p>
         <button mat-button [disabled]="!canSubmit" (click)="sendRequestToFrappe()">Build Video</button>
@@ -55,7 +48,8 @@
   <mat-paginator [length]="frameNumbers.length" [pageSize]="pageSize" (page)="pageIndex = $event.pageIndex">
   </mat-paginator>
   <mat-accordion *ngIf="objectKeys(frames).length > 0; else noFrames">
-    <mat-expansion-panel *ngFor="let number of frameNumbers.slice(pageIndex*pageSize,(pageIndex+1)*pageSize); let i = index">
+    <mat-expansion-panel
+      *ngFor="let number of frameNumbers.slice(pageIndex*pageSize,(pageIndex+1)*pageSize); let i = index">
       <mat-expansion-panel-header>
         <mat-panel-title>
           Frame {{number}}
@@ -78,18 +72,22 @@
           </div>
         </mat-grid-tile>
       </mat-grid-list>
-      <mat-grid-list cols="12" rowHeight="1:1">
+      <mat-grid-list cols="12" rowHeight="1:2">
         <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let i = index">
           <mat-card>
             <p>Box {{i+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
             <input matInput placeholder="Enter translation..." name="box-{{number}}-{{i}}" [(ngModel)]="box.text">
+            <mat-card-actions>
+              <button mat-raised-button color="accent" (click)="openFontDialog(number,i)">Font: {{box.fontsize}} |
+                {{box.fontcolor}}</button>
+            </mat-card-actions>
           </mat-card>
         </mat-grid-tile>
       </mat-grid-list>
       <mat-action-row>
-          <button mat-button *ngIf="i>0" (click)="copyPreviousFrame(number,i-1)">Copy Previous Frame</button>
-          <button mat-button (click)="ignoreFrame(number)">Ignore Frame</button>
-        </mat-action-row>
+        <button mat-button *ngIf="i>0" (click)="copyPreviousFrame(number,i-1)">Copy Previous Frame</button>
+        <button mat-button (click)="ignoreFrame(number)">Ignore Frame</button>
+      </mat-action-row>
     </mat-expansion-panel>
   </mat-accordion>
 </ng-template>
