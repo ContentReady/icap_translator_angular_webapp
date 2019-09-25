@@ -3,7 +3,7 @@
   <mat-label>Font Size</mat-label>
   <input matInput placeholder="Font Size" type="number" min='10' max='80' [(ngModel)]='font.size'>
   <mat-label>Font Colour</mat-label>
-  <input matInput placeholder="Font Colour" type="color" [(ngModel)]='font.color' (onChange)="output.emit()">
+  <input matInput placeholder="Font Colour" type="color" [(ngModel)]='font.color'>
 </div>
 <div mat-dialog-actions>
   <button mat-button [mat-dialog-close]="font" cdkFocusInitial>Save</button>
