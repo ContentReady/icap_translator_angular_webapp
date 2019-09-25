@@ -14,6 +14,7 @@ interface TranslationRequest {
   frames: Array<Frame>;
   voiceovers: Array<Voiceover>;
   language: String;
+  video_mode: String;
 }
 
 interface Frame {
@@ -29,6 +30,7 @@ interface Voiceover {
   duration: Number;
   wav?: String;
   transcript?: String;
+  original_duration: Number;
 }
 
 @Component({
@@ -54,6 +56,14 @@ export class EditComponent implements OnInit, OnDestroy {
     source_video: '',
     frames: [],
     voiceovers: [],
+    video_mode: 'pause_frame'
+  };
+  videoModeOptions = {
+    'slow_down_video': 'Slow Down Video',
+    'speed_up_video': 'Speed Up Video',
+    'slow_down_audio': 'Slow Down Audio',
+    'speed_up_audio': 'Speed Up Audio',
+    'pause_frame': 'Pause Frame',
   };
   pageIndex = 0;
   pageSize = 50;
@@ -265,6 +275,7 @@ export class EditComponent implements OnInit, OnDestroy {
         start: voiceover['start'],
         duration: voiceover['duration'],
         end: voiceover['start'] + voiceover['duration'],
+        original_duration: this.originalVoiceovers[voiceover['start']].duration
       }
       this.request.voiceovers.push(tempVoiceover);
     });

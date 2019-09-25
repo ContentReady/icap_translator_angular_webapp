@@ -22,6 +22,17 @@
           </mat-form-field>
         </mat-grid-tile>
         <mat-grid-tile colspan="4">
+            <mat-form-field>
+              <mat-label>Video Mode</mat-label>
+              <mat-select matTooltip="What should happen when video and voiceover durations do not match?" matTooltipPosition="above"
+                [(ngModel)]="request.video_mode">
+                <mat-option *ngFor="let option of objectKeys(videoModeOptions)" [value]="option">
+                  {{videoModeOptions[option]}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-grid-tile>
+        <mat-grid-tile colspan="4">
           <mat-label>Email</mat-label>
           <input matInput matTooltip="Please enter email to receive a notification when video is ready."
             matTooltipPosition="above" placeholder="email@example.com" type="email" [(ngModel)]='request.email'>
