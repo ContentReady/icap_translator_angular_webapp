@@ -153,7 +153,7 @@ export class EditComponent implements OnInit, OnDestroy {
     this.frameNumbers.sort((a, b) => a - b);
     this.video['voiceovers'].map(voiceover => {
       this.originalVoiceovers[voiceover.start] = {
-        wav: `${environment.cmsEndpoint}${voiceover.wav}`,
+        wav: voiceover.wav ? `${environment.cmsEndpoint}${voiceover.wav}`: '',
         start: voiceover.start,
         duration: voiceover.duration,
         end: voiceover.end,

@@ -116,7 +116,7 @@
             {{recordedVoiceovers[start] && recordedVoiceovers[start].duration || 0}}s
           </mat-panel-description>
         </mat-expansion-panel-header>
-        <mat-grid-list cols="12" rowHeight="1:2">
+        <mat-grid-list cols="12" rowHeight="1:5">
           <mat-grid-tile colspan="4">
             <mat-card>
               <mat-card-title>
@@ -133,7 +133,7 @@
                 Hindi Voiceover
               </mat-card-title>
               <mat-card-content>
-                <audio controls>
+                <audio controls *ngIf="originalVoiceovers[start].wav">
                   <source src="{{originalVoiceovers[start].wav}}" type="audio/wav">
                   Your browser does not support the audio tag.
                 </audio>

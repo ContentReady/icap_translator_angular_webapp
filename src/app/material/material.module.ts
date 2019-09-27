@@ -15,6 +15,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDialogModule} from '@angular/material/dialog';
+import {TextFieldModule} from '@angular/cdk/text-field';
 
 const Material = [
   MatToolbarModule,
@@ -30,7 +31,8 @@ const Material = [
   MatSelectModule,
   MatPaginatorModule,
   MatTooltipModule,
-  MatDialogModule
+  MatDialogModule,
+  TextFieldModule
 ]
 
 @NgModule({
