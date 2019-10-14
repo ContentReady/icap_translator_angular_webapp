@@ -52,7 +52,7 @@ export class EditComponent implements OnInit, OnDestroy {
   recordedVoiceovers = {};
   request:TranslationRequest = {
     email: '',
-    language: '',
+    language: 'English',
     source_video: '',
     frames: [],
     voiceovers: [],
@@ -116,7 +116,7 @@ export class EditComponent implements OnInit, OnDestroy {
 
   async getLanguages() {
     this.availableLanguages = (await this.db.getAvailableLanguages())['message'];
-    this.request.language = this.availableLanguages[0].title;
+    //this.request.language = this.availableLanguages[0].title;
   }
 
   async getVideoData(video_ref) {
