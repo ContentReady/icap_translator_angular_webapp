@@ -50,6 +50,8 @@ export class EditComponent implements OnInit, OnDestroy {
   recordedTime;
   currentVoiceoverStart;
   recordedVoiceovers = {};
+  scaleX = 0;
+  scaleY = 0;
   request:TranslationRequest = {
     email: '',
     language: 'English',
@@ -167,23 +169,33 @@ export class EditComponent implements OnInit, OnDestroy {
   getCoords(frameNumber,boxNumber) {
     let top = 0;
     let left = 0;
-    let scaleX = 1;
-    let scaleY = 1;
+    let tempScaleX = 1;
+    let tempScaleY = 1;
     const standardFontSize = 16; // pt
     let fontsize = 40; // pt
     let color = '#FF0000';
     if (this.ostCleanImage) {
-      scaleX = this.ostCleanImage.nativeElement.offsetWidth/this.frameDimensions[0];    
-      scaleY = this.ostCleanImage.nativeElement.offsetHeight/this.frameDimensions[1];
-      left = this.frames[frameNumber].boxes[boxNumber].coords[0]*scaleX; 
-      top = this.frames[frameNumber].boxes[boxNumber].coords[1]*scaleY;
+		if(this.scaleX == 0) {
+				tempScaleX = this.ostCleanImage.nativeElement.offsetWidth/this.frameDimensions[0];
+				if (tempScaleX > 0) {
+					this.scaleX = tempScaleX;
+				}
+		}
+		if(this.scaleY == 0) {
+				tempScaleY = this.ostCleanImage.nativeElement.offsetHeight/this.frameDimensions[1];
+				if (tempScaleY > 0) {
+					this.scaleY = tempScaleY;
+				}
+		}
+      left = this.frames[frameNumber].boxes[boxNumber].coords[0]*this.scaleX; 
+      top = this.frames[frameNumber].boxes[boxNumber].coords[1]*this.scaleY;
       fontsize = this.frames[frameNumber].boxes[boxNumber].fontsize;
       color = this.frames[frameNumber].boxes[boxNumber].fontcolor;
     }
     const style = {
       top: `${top}px`,
       left: `${left}px`,
-      'font-size': `${fontsize/standardFontSize*scaleY}rem`,
+      'font-size': `${fontsize/standardFontSize*this.scaleY}rem`,
       color: color
     }
     return style;
