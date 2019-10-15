@@ -84,19 +84,19 @@
         </mat-grid-tile>
       </mat-grid-list>
       <mat-grid-list cols="12" rowHeight="1:2">
-        <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let i = index">
+        <mat-grid-tile colspan="3" *ngFor="let box of frames[number].boxes; let j = index">
           <mat-card>
-            <p>Box {{i+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
-            <input matInput placeholder="Enter translation..." name="box-{{number}}-{{i}}" [(ngModel)]="box.text">
+            <p>Box {{j+1}}: x:{{box.coords[0]}}, y:{{box.coords[1]}}</p>
+            <input matInput placeholder="Enter translation..." name="box-{{number}}-{{j}}" [(ngModel)]="box.text">
             <mat-card-actions>
-              <button mat-raised-button color="accent" (click)="openFontDialog(number,i)">Font: {{box.fontsize}} |
+              <button mat-raised-button color="accent" (click)="openFontDialog(number,j)">Font: {{box.fontsize}} |
                 {{box.fontcolor}}</button>
             </mat-card-actions>
           </mat-card>
         </mat-grid-tile>
       </mat-grid-list>
       <mat-action-row>
-        <button mat-button *ngIf="i>0" (click)="copyPreviousFrame(number,i-1)">Copy Previous Frame</button>
+        <button mat-button *ngIf="(pageIndex*pageSize)+i>0" (click)="copyPreviousFrame(number,(pageIndex*pageSize)+i-1)">Copy Previous Frame</button>
         <button mat-button (click)="ignoreFrame(number)">Ignore Frame</button>
       </mat-action-row>
     </mat-expansion-panel>

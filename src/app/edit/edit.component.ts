@@ -169,16 +169,22 @@ export class EditComponent implements OnInit, OnDestroy {
     let left = 0;
     let scaleX = 1;
     let scaleY = 1;
+    const standardFontSize = 16; // pt
+    let fontsize = 40; // pt
+    let color = '#FF0000';
     if (this.ostCleanImage) {
       scaleX = this.ostCleanImage.nativeElement.offsetWidth/this.frameDimensions[0];    
       scaleY = this.ostCleanImage.nativeElement.offsetHeight/this.frameDimensions[1];
       left = this.frames[frameNumber].boxes[boxNumber].coords[0]*scaleX; 
       top = this.frames[frameNumber].boxes[boxNumber].coords[1]*scaleY;
+      fontsize = this.frames[frameNumber].boxes[boxNumber].fontsize;
+      color = this.frames[frameNumber].boxes[boxNumber].fontcolor;
     }
     const style = {
       top: `${top}px`,
       left: `${left}px`,
-      // 'font-size': `${scaleX}rem`
+      'font-size': `${fontsize/standardFontSize*scaleY}rem`,
+      color: color
     }
     return style;
   }
@@ -197,6 +203,8 @@ export class EditComponent implements OnInit, OnDestroy {
     // this.frames[frameNumber] = this.frames[prevFrameNumber];
     this.frames[frameNumber].boxes.forEach((box,i) => {
       box.text = this.frames[prevFrameNumber].boxes[i].text;
+      box.fontsize = this.frames[prevFrameNumber].boxes[i].fontsize;
+      box.fontcolor = this.frames[prevFrameNumber].boxes[i].fontcolor;
     });
   }
 
