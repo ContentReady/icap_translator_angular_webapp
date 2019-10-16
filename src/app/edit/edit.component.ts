@@ -123,6 +123,12 @@ export class EditComponent implements OnInit, OnDestroy {
 
   async getVideoData(video_ref) {
     this.video = (await this.db.getVideoByRef(video_ref))['data'];
+    if (this.video['width']) {
+		this.frameDimensions[0] = this.video['width'];
+	}
+	if (this.video['height']) {
+		this.frameDimensions[1] = this.video['height'];
+	}
     this.video['frames'].map(frame => {
       const temp_frame = {
         number: frame.number,
