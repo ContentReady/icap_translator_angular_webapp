@@ -19,6 +19,10 @@ const routes: Routes = [
     component: EditComponent
   },
   {
+    path: 'remix/:id',
+    component: EditComponent
+  },
+  {
     path: 'translated',
     component: TranslatedComponent
   },

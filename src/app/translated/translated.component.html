@@ -3,6 +3,9 @@
   <mat-card *ngFor="let video of videos">
     <mat-card-title><a routerLink="/translated/{{video.name}}">{{video.name}} | {{video.request}} |
         {{video.language}}</a></mat-card-title>
+        <mat-card-actions>
+              <button mat-raised-button color="accent" routerLink="/remix/{{video.name}}">Remix This Video</button>
+            </mat-card-actions>
   </mat-card>
 </div>
 

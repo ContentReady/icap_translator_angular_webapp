@@ -39,7 +39,7 @@
         </mat-grid-tile>
       </mat-grid-list>
       <mat-action-row>
-        <p *ngIf="!canSubmit">Please wait while we submit your request.</p>
+        <p>{{msg}}</p>
         <button mat-button [disabled]="!canSubmit" (click)="sendRequestToFrappe()">Build Video</button>
       </mat-action-row>
     </mat-expansion-panel>

@@ -11,6 +11,7 @@ import { FontpickerComponent } from '../common/fontpicker/fontpicker.component';
 interface TranslationRequest {
   email?: String;
   source_video: String;
+  remix_source?: String;
   frames: Array<Frame>;
   voiceovers: Array<Voiceover>;
   language: String;
@@ -40,6 +41,7 @@ interface Voiceover {
 })
 export class EditComponent implements OnInit, OnDestroy {
   email = '';
+  msg = 'Please wait while we set up the app.';
   availableLanguages = [];
   video = {};
   frames = {};
@@ -50,6 +52,7 @@ export class EditComponent implements OnInit, OnDestroy {
   recordedTime;
   currentVoiceoverStart;
   recordedVoiceovers = {};
+  remixSource = '';
   scaleX = 0;
   scaleY = 0;
   request:TranslationRequest = {
@@ -69,7 +72,7 @@ export class EditComponent implements OnInit, OnDestroy {
   };
   pageIndex = 0;
   pageSize = 50;
-  canSubmit = true;
+  canSubmit = false;
   objectKeys = Object.keys;
   frameDimensions = [1920,1080]; // Actual dimensions of the frame. Used in scaling.
 
@@ -80,7 +83,7 @@ export class EditComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private audioRecordingService: AudioRecordingService,
     private dialog: MatDialog
-  ) { 
+  ) {
     this.audioRecordingService.recordingFailed().subscribe(() => {
       this.isRecording = false;
       this.currentVoiceoverStart = null;
@@ -107,12 +110,47 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.route.params.pipe(first()).subscribe(params => {
-      if (params.id) {
-        this.request.source_video = params.id;
-        this.getLanguages();
-        this.getVideoData(params.id);
-      }
+    this.route.url.pipe(first()).subscribe(async url => {
+        //console.log(url);
+        if (url[0].path == 'edit') {
+            if (url[1].path) {
+                this.request.source_video = url[1].path;
+                this.getLanguages();
+                await this.getVideoData(url[1].path);
+                this.msg = '';
+                this.canSubmit = true;
+            }
+        } else if (url[0].path == 'remix') {
+            if (url[1].path) {
+                const translated_source = (await this.db.getTranslatedVideo(url[1].path))['data'];
+                //console.log(translated_source);
+                this.request.source_video = translated_source.source_video;
+                this.request.remix_source = translated_source.request;
+                this.getLanguages();
+                await this.getVideoData(translated_source.source_video);
+                const remix_translation_request = (await this.db.getTranslationRequest(translated_source.request))['data'];
+                //console.log(remix_translation_request);
+                this.request.language = remix_translation_request.language;
+                this.request.video_mode = remix_translation_request.video_mode;
+                remix_translation_request.frames.map(frame => {
+                    this.frames[frame.number].boxes = JSON.parse(frame.boxes);
+                });
+                remix_translation_request.voiceovers.map(async voiceover => {
+                    if (voiceover.wav) {
+                        const url = `${environment.cmsEndpoint}${voiceover.wav}`;
+                        this.recordedVoiceovers[voiceover.start] = {
+                            start: voiceover.start,
+                            duration: voiceover.duration,
+                            safeUrl: url,
+                            wav: voiceover.wav,
+                        };
+                    }
+                });
+                this.msg = '';
+                this.canSubmit = true;
+            }
+        }
+
     });
   }
 
@@ -124,11 +162,11 @@ export class EditComponent implements OnInit, OnDestroy {
   async getVideoData(video_ref) {
     this.video = (await this.db.getVideoByRef(video_ref))['data'];
     if (this.video['width']) {
-		this.frameDimensions[0] = this.video['width'];
-	}
-	if (this.video['height']) {
-		this.frameDimensions[1] = this.video['height'];
-	}
+        this.frameDimensions[0] = this.video['width'];
+    }
+    if (this.video['height']) {
+        this.frameDimensions[1] = this.video['height'];
+    }
     this.video['frames'].map(frame => {
       const temp_frame = {
         number: frame.number,
@@ -181,19 +219,19 @@ export class EditComponent implements OnInit, OnDestroy {
     let fontsize = 40; // pt
     let color = '#FF0000';
     if (this.ostCleanImage) {
-		if(this.scaleX == 0) {
-				tempScaleX = this.ostCleanImage.nativeElement.offsetWidth/this.frameDimensions[0];
-				if (tempScaleX > 0) {
-					this.scaleX = tempScaleX;
-				}
-		}
-		if(this.scaleY == 0) {
-				tempScaleY = this.ostCleanImage.nativeElement.offsetHeight/this.frameDimensions[1];
-				if (tempScaleY > 0) {
-					this.scaleY = tempScaleY;
-				}
-		}
-      left = this.frames[frameNumber].boxes[boxNumber].coords[0]*this.scaleX; 
+        if(this.scaleX == 0) {
+                tempScaleX = this.ostCleanImage.nativeElement.offsetWidth/this.frameDimensions[0];
+                if (tempScaleX > 0) {
+                    this.scaleX = tempScaleX;
+                }
+        }
+        if(this.scaleY == 0) {
+                tempScaleY = this.ostCleanImage.nativeElement.offsetHeight/this.frameDimensions[1];
+                if (tempScaleY > 0) {
+                    this.scaleY = tempScaleY;
+                }
+        }
+      left = this.frames[frameNumber].boxes[boxNumber].coords[0]*this.scaleX;
       top = this.frames[frameNumber].boxes[boxNumber].coords[1]*this.scaleY;
       fontsize = this.frames[frameNumber].boxes[boxNumber].fontsize;
       color = this.frames[frameNumber].boxes[boxNumber].fontcolor;
@@ -278,13 +316,13 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   async sendRequestToFrappe() {
-    if (!confirm("Are you sure you want to submit this video for processing?")) {
+    if (!confirm("Have you selected the right language for the translation request?")) {
       return false;
     } else {
       this.canSubmit = false;
-      const msg = 'Submitting translation request. This is a time consuming process.';
-      console.log(msg);
-      alert(msg);
+      this.msg = 'Submitting translation request. This is a time consuming process.';
+      console.log(this.msg);
+      alert(this.msg);
     }
     // reset before populating
     this.request.frames = [];
@@ -303,23 +341,27 @@ export class EditComponent implements OnInit, OnDestroy {
         end: voiceover['start'] + voiceover['duration'],
         original_duration: this.originalVoiceovers[voiceover['start']].duration
       }
+      if (voiceover['wav']) {
+          tempVoiceover['wav'] = voiceover['wav'];
+      }
       this.request.voiceovers.push(tempVoiceover);
     });
     const translationRequest = (await this.db.uploadTranslationRequest(this.request))['data'];
     if (translationRequest.name) {
-      this.db.uploadVoiceovers(this.recordedVoiceovers,translationRequest);
+      await this.db.uploadVoiceovers(this.recordedVoiceovers,translationRequest);
     } else {
       const msg = 'Something went wrong. Please try again after some time.';
       console.log(msg);
       alert(msg);
     }
     await this.sleep(10000);
+    this.msg = '';
     alert(`Your request has been submitted successfully with the ID: ${translationRequest.name}. \nIf you entered your email, you will be notified once the video is ready to view.`);
     this.canSubmit = true;
   }
 
   resetAll(){
-    // Behaviour to be defined. Empty text boxes? 
+    // Behaviour to be defined. Empty text boxes?
   }
 
 }

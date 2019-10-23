@@ -65,17 +65,25 @@ export class DbService {
     const url = `${environment.cmsEndpoint}/api/method/icap.api.attach_voiceover_to_request`;
     for (const voiceover of translationRequest.voiceovers) {
       await this.sleep(2000);
-      let tmpString = <String>await this.blobToBase64(voiceovers[voiceover.start].blob);
-      const base64String = tmpString.split(',')[1];
-      const payload = {
+      let payload = {
         video_ref: translationRequest.name,
         voiceover_ref: voiceover.name,
-        start: voiceover.start,
-        base64_string: base64String
+        start: voiceover.start
+      }
+      if (voiceover.wav) {
+          payload['file_url'] = voiceover.wav;
+      } else {
+          let tmpString = <String>await this.blobToBase64(voiceovers[voiceover.start].blob);
+          payload['base64_string'] = tmpString.split(',')[1];
       }
       const r = await this.http.post(url,payload,{headers:this.httpHeaders}).toPromise();
       // console.log(r);
     }
+  }
+
+  getVoiceoverBlob(file_url){
+      const url = `${environment.cmsEndpoint}${file_url}`;
+      return this.http.get(url,{headers:this.httpHeaders,responseType: 'blob' as 'json'}).toPromise();
   }
 
   getTranslatedVideos() {
@@ -85,6 +93,11 @@ export class DbService {
 
   getTranslatedVideo(video_ref) {
     const url = `${environment.cmsEndpoint}/api/resource/Translated Video/${video_ref}`;
+    return this.http.get(url,{headers:this.httpHeaders}).toPromise();
+  }
+
+  getTranslationRequest(request_ref) {
+    const url = `${environment.cmsEndpoint}/api/resource/Translation Request/${request_ref}`;
     return this.http.get(url,{headers:this.httpHeaders}).toPromise();
   }
 }
