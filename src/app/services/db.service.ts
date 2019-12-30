@@ -19,7 +19,8 @@ export class DbService {
    }
 
   getSourceVideos() {
-    const url = `${environment.cmsEndpoint}/api/resource/Source Video/?fields=["name","title","chapter_number","chapter_name","creator","grade"]&filters=[["Source Video","is_published","=",true]]`;
+    // const url = `${environment.cmsEndpoint}/api/resource/Source Video/?fields=["name","title","chapter_number","chapter_name","creator","grade"]&filters=[["Source Video","is_published","=",true]]`;
+    const url = `${environment.cmsEndpoint}/api/resource/Source Video?fields=["name","title","chapter_number","chapter_name","creator","grade"]`;
     return this.http.get(url,{headers:this.httpHeaders}).toPromise();
   }
 
@@ -87,7 +88,7 @@ export class DbService {
   }
 
   getTranslatedVideos() {
-    const url = `${environment.cmsEndpoint}/api/resource/Translated Video/?fields=["name", "language", "request"]&filters=[["Translated Video","is_published","=",true]]`;
+    const url = `${environment.cmsEndpoint}/api/resource/Translated Video?fields=["name", "language", "request"]&filters=[["Translated Video","is_published","=",true]]`;
     return this.http.get(url,{headers:this.httpHeaders}).toPromise();
   }
 

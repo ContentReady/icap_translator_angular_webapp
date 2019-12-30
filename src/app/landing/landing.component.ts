@@ -15,7 +15,11 @@ export class LandingComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.videos = (await this.db.getSourceVideos())['data'];
+    try {
+      this.videos = (await this.db.getSourceVideos())['data'];
+    } catch(e) {
+      console.trace(e);
+    }
     // console.log(this.videos);
   }
 
